@@ -1,0 +1,20 @@
+Solving:
+
+- We will solve only standard-form maximization problems
+- For deciding entering variable, we pick the first negative cost coefficient
+- For deciding leaving variable, we pick the row with the MAX h/ ratio
+
+Solving standard-form minimization:
+
+- We will take the dual of the problem
+- Then it will be a standard form maximization problem
+
+Removing redundant constraints:
+
+- We pairwise analyze each constraint row
+- If the coefficients of all non-slack variables are the exact same, then discard the constraint with the greater constant (normalized)
+
+Notes:
+
+- use fraction instead of float
+- maybe something to do with adding positive equations?

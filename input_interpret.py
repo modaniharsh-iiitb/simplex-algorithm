@@ -14,7 +14,6 @@ def interpret(filename):
 
         # the next lines contain the constraints - can be equalitites or inequalities
         constraints = lines[2:]
-        print(constraints)
         # each line contains the constant, followed by the type of constraint, followed by the coefficients of the variables
         for i in range(len(constraints)):
             constraint = constraints[i].strip().split()
