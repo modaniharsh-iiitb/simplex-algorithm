@@ -1,3 +1,5 @@
+import fractions
+
 # function to interpret the input file and return the objective function, number of variables, unit cost vector and constraints
 def interpret(filename):
     with open(filename, 'r') as f:
