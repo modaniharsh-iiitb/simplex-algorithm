@@ -1,6 +1,5 @@
-import sys
+import fractions
 import numpy as np
-from input_interpret import interpret
 
 import time
 
@@ -75,8 +74,10 @@ class Tableau:
             # the pivot column (corresponding to the entering variable) is the first negative value in the last row
             a = np.argwhere(self.constraint_matrix[-1] < 0)[0][0]
             print(a)
-            # the pivot row (corresponding to the leaving variable) is the row with the smallest ratio of the constant to the pivot column
-            b = np.argmin(self.constraint_matrix[:-1, -1] / self.constraint_matrix[:-1, a])
+            # the pivot row (corresponding to the leaving variable) is the row with the smallest ratio of the constant to the pivot column, given that the pivot element is positive
+            ratios = self.constraint_matrix[:-1, -1] / self.constraint_matrix[:-1, a]
+            ratios = np.where(self.constraint_matrix[:-1, a] > 0, ratios, np.inf)
+            b = np.argmin(ratios)
             print(b)
             self.pivot(a, b)
             print(self.constraint_matrix)
@@ -84,16 +85,3 @@ class Tableau:
             time.sleep(1)
 
         return ("OPTIMAL", self.constraint_matrix[-1, -1])
-
-if __name__ == '__main__':
-    n = len(sys.argv)
-    if n < 2:
-        print("Usage: python solution.py <filename>")
-        sys.exit(1)
-
-    filename = sys.argv[1]
-    obj, num_vars, unit_cost, constraints = interpret(filename)
-    t = Tableau(obj, num_vars, unit_cost, constraints)
-    k = t.solve()
-    print(k[0])
-    print(k[1])
