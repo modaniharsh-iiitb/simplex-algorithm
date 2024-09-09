@@ -28,7 +28,7 @@ def interpret(filename):
             temp = [fractions.Fraction(0) for i in range(num_vars)]
             # 3 >= 2 2@1
             for i in range(2, len(constraint)):
-                if('@' in constraint[i]):
+                if ('@' in constraint[i]):
                     temp[int(constraint[i].split('@')[1])-1] = fractions.Fraction(constraint[i].split('@')[0])
                 else:
                     temp[i-2] = fractions.Fraction(constraint[i])
@@ -36,7 +36,4 @@ def interpret(filename):
 
 
         # the assumed constraints are that all variables are non-negative
-        print(obj, num_vars, unit_cost, act_constraints)
         return obj, num_vars, unit_cost, act_constraints
-    
-interpret('inp.csv')

@@ -13,4 +13,6 @@ if __name__ == '__main__':
     t = Tableau(obj, num_vars, unit_cost, constraints)
     k = t.solve()
     print(k[0])
-    print(k[1])
+    if k[0] == "OPTIMAL":
+        print(k[1])
+        print(' '.join([str(e) for e in k[2]]))
