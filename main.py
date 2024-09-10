@@ -14,5 +14,5 @@ if __name__ == '__main__':
     k = t.solve()
     print(k[0])
     if k[0] == "OPTIMAL":
-        print(k[1])
-        print(' '.join([str(e) for e in k[2]]))
+        print(k[2])
+        print('FINAL SOLUTION:', k[3], '=', k[1])
