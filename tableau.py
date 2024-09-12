@@ -76,7 +76,7 @@ class Tableau:
             '=': '='
         }
         # constrains in string form
-        self.constraints_str = 'Constraints:\n'
+        self.constraints_str = 'Reduced Constraints:\n'
         for c in self.constraints:
             for i in range(len(c[2])):
                 if (i != 0):
@@ -169,15 +169,14 @@ class Tableau:
             if (self.constraints[i][1] != '='):
                 slack_var_counter += 1
 
-        # rermove later
+        # print the tableau at this stage
         print('Tableau after setting basic variables for artificial variables:')
         self.print_tableau()
         print('Basic variables:', self.basic_vars)
         print()
         
         # initially, run the optimization over the artificial variables
-        self.find_redundant_constraints()
-        r = self.optimize(op = 1)
+        r = self.optimize(op = 1, f_test = True)
         if (r == self.OPTIMIZE_UNBOUNDED):
             return ('UNBOUNDED', None, None)
         
@@ -194,7 +193,7 @@ class Tableau:
         # (the basic variables carry over from the previous optimization)
         self.constraint_matrix[-1] = [-c for c in self.unit_cost] + [0 for _ in range(self.slack_vars + 1)]
 
-        # remove later
+        # print the tableau at this stage
         print('Tableau after removing artificial variables and updating objective function:')
         self.print_tableau()
         print('Basic variables:', self.basic_vars)
@@ -216,28 +215,6 @@ class Tableau:
                 solution_string += 'x' + str(i+1) + ' = 0\n'
         # if the optimization is successful, return 'OPTIMAL', the optimal value and the optimal solution
         return ('OPTIMAL', self.constraint_matrix[-1][-1], solution_string, self.obj_str)
-    
-    def find_redundant_constraints(self):
-        c = [self.constraint_matrix[i].copy() for i in range(len(self.constraint_matrix))]
-        self.remove_artificial_vars()
-        # m = Matrix(self.constraint_matrix[:-1])
-        m = row_reducer.rref_no_swap(self.constraint_matrix[:-1])
-        self.constraint_matrix = [c[i] for i in range(len(c))]
-        # self.consrtaints_removed is the list of constraints that are redundant
-        self.constraints_removed = []
-
-        # if m has a zero row, then drop the row from the constraint matrix
-        for i in range(len(m)):
-            if (all(x == 0 for x in m[i])):
-                self.constraints_removed.append(i)
-                del self.constraint_matrix[i]
-                del self.basic_vars[i]
-
-        s = [[str(e) for e in row] for row in m]
-        lens = [max(map(len, col)) for col in zip(*s)]
-        fmt = '\t'.join('{{:{}}}'.format(x) for x in lens)
-        table = [fmt.format(*row) for row in s]
-        print('\n'.join(table))
 
     def find_leaving_var(self, entering_var):
         min_ratio = float('inf')
@@ -252,8 +229,8 @@ class Tableau:
             return -1
         return leaving_var
     
-    def optimize(self, op):
-        # remove later
+    def optimize(self, op = 1, f_test = False):
+        # print the tableau at this stage
         print('Optimizing for', 'min' if op == 1 else 'max', 'with the tableau:')
         self.print_tableau()
         print('Basic variables:', self.basic_vars)
@@ -265,9 +242,8 @@ class Tableau:
                 self.constraint_matrix[-1] = [self.constraint_matrix[-1][j] - self.constraint_matrix[row][j]*self.constraint_matrix[-1][col] for j in range(len(self.constraint_matrix[row]))]
         
         # find the entering variable
-        l = self.constraint_matrix[-1][:-1]
-        # entering_var = self.constraint_matrix[-1].index(max(l) if op == 1 else min(l))
         # pick the first positive if minimizing, first negative if maximizing
+        l = self.constraint_matrix[-1][:-1]
         entering_var = -1
         for i in range(len(l)):
             if (op == 1 and l[i] > 0):
@@ -279,18 +255,19 @@ class Tableau:
         if (entering_var == -1):
             return self.OPTIMIZE_SUCCESS
 
-        # remove later
+        # print the tableau at this stage
         iter = 1
 
         while (op * self.constraint_matrix[-1][entering_var] > 0):
-            # remove later
+            # print the iteration at this stage
             print('Iteration', iter)
             iter += 1
 
             leaving_var = self.find_leaving_var(entering_var)
             if (leaving_var == -1):
                 return self.OPTIMIZE_UNBOUNDED
-            print(entering_var, leaving_var)
+            print("Entering column:", entering_var)
+            print("Leaving row:", leaving_var)
             self.basic_vars[leaving_var] = entering_var
             self.constraint_matrix[leaving_var] = [self.constraint_matrix[leaving_var][j] / self.constraint_matrix[leaving_var][entering_var] for j in range(len(self.constraint_matrix[0]))]
 
@@ -299,7 +276,7 @@ class Tableau:
                 if (i != leaving_var):
                     self.constraint_matrix[i] = [self.constraint_matrix[i][j] - self.constraint_matrix[leaving_var][j] * self.constraint_matrix[i][entering_var] for j in range(len(self.constraint_matrix[0]))]
 
-            # remove later
+            # print the tableau at this stage
             print('Tableau after iteration:')
             self.print_tableau()
             print('Basic variables:', self.basic_vars)
@@ -318,11 +295,11 @@ class Tableau:
             if (entering_var == -1):
                 break
 
-        # remove later
-        print('Optimization successful, obtained the tableau:')
-        self.print_tableau()
-        print('Basic variables:', self.basic_vars)
-        print()
+        if (not f_test):
+            print('Optimization successful, obtained the tableau:')
+            self.print_tableau()
+            print('Basic variables:', self.basic_vars)
+            print()
         return self.OPTIMIZE_SUCCESS
 
     def print_tableau(self):

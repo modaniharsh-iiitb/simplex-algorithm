@@ -5,7 +5,7 @@ def rref_no_swap(matrix):
         # find the first non-zero element in the row
         pivot = None
         for c in range(cols):
-            if matrix[r][c] != 0:
+            if (matrix[r][c] != 0):
                 pivot = c
                 break
         
@@ -18,7 +18,7 @@ def rref_no_swap(matrix):
 
         # subtract the row from all other rows to make the other elements in the column zero
         for r2 in range(rows):
-            if r2 == r:
+            if (r2 == r):
                 continue
             factor = matrix[r2][pivot]
             matrix[r2] = [matrix[r2][c] - factor * matrix[r][c] for c in range(cols)]

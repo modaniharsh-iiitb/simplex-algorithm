@@ -1,5 +1,5 @@
 # simplex-algorithm
-A program written in Python using NumPy that implements the simplex algorithm of solving linear programming problems.
+A program written in Python that implements the simplex algorithm of solving linear programming problems.
 
 ## Theory behind linear programming
 
@@ -159,3 +159,7 @@ The `inp.csv` file is provided as a template as well for the same. The format of
 - `<coefficients>`: space-separated `float` values that signify `a_i`.
 
 **Note:** both `<unit_cost_vector>` and `<coefficients>` can be positionally as well as explicitly indexed, using the `@` symbol. For example, `k@i` would indicate that `k` is the `i`th component, 1-indexed.
+
+## Contributors
+- Dhruv Kothari (IMT2022114)
+- Harsh Modani (IMT2022055)
