@@ -1,4 +1,6 @@
 from fractions import Fraction
+from sympy import *
+import row_reducer
 
 class Tableau:
 
@@ -74,7 +76,7 @@ class Tableau:
             '=': '='
         }
         # constrains in string form
-        self.constraints_str = 'Constraints:\n'
+        self.constraints_str = 'Reduced Constraints:\n'
         for c in self.constraints:
             for i in range(len(c[2])):
                 if (i != 0):
@@ -167,14 +169,14 @@ class Tableau:
             if (self.constraints[i][1] != '='):
                 slack_var_counter += 1
 
-        # rermove later
+        # print the tableau at this stage
         print('Tableau after setting basic variables for artificial variables:')
         self.print_tableau()
         print('Basic variables:', self.basic_vars)
         print()
         
         # initially, run the optimization over the artificial variables
-        r = self.optimize(op = 1)
+        r = self.optimize(op = 1, f_test = True)
         if (r == self.OPTIMIZE_UNBOUNDED):
             return ('UNBOUNDED', None, None)
         
@@ -191,7 +193,7 @@ class Tableau:
         # (the basic variables carry over from the previous optimization)
         self.constraint_matrix[-1] = [-c for c in self.unit_cost] + [0 for _ in range(self.slack_vars + 1)]
 
-        # remove later
+        # print the tableau at this stage
         print('Tableau after removing artificial variables and updating objective function:')
         self.print_tableau()
         print('Basic variables:', self.basic_vars)
@@ -227,8 +229,8 @@ class Tableau:
             return -1
         return leaving_var
     
-    def optimize(self, op):
-        # remove later
+    def optimize(self, op = 1, f_test = False):
+        # print the tableau at this stage
         print('Optimizing for', 'min' if op == 1 else 'max', 'with the tableau:')
         self.print_tableau()
         print('Basic variables:', self.basic_vars)
@@ -240,21 +242,32 @@ class Tableau:
                 self.constraint_matrix[-1] = [self.constraint_matrix[-1][j] - self.constraint_matrix[row][j]*self.constraint_matrix[-1][col] for j in range(len(self.constraint_matrix[row]))]
         
         # find the entering variable
+        # pick the first positive if minimizing, first negative if maximizing
         l = self.constraint_matrix[-1][:-1]
-        entering_var = self.constraint_matrix[-1].index(max(l) if op == 1 else min(l))
+        entering_var = -1
+        for i in range(len(l)):
+            if (op == 1 and l[i] > 0):
+                entering_var = i
+                break
+            if (op == -1 and l[i] < 0):
+                entering_var = i
+                break
+        if (entering_var == -1):
+            return self.OPTIMIZE_SUCCESS
 
-        # remove later
+        # print the tableau at this stage
         iter = 1
 
         while (op * self.constraint_matrix[-1][entering_var] > 0):
-            # remove later
+            # print the iteration at this stage
             print('Iteration', iter)
             iter += 1
 
             leaving_var = self.find_leaving_var(entering_var)
             if (leaving_var == -1):
                 return self.OPTIMIZE_UNBOUNDED
-            print(entering_var, leaving_var)
+            print("Entering column:", entering_var)
+            print("Leaving row:", leaving_var)
             self.basic_vars[leaving_var] = entering_var
             self.constraint_matrix[leaving_var] = [self.constraint_matrix[leaving_var][j] / self.constraint_matrix[leaving_var][entering_var] for j in range(len(self.constraint_matrix[0]))]
 
@@ -263,7 +276,7 @@ class Tableau:
                 if (i != leaving_var):
                     self.constraint_matrix[i] = [self.constraint_matrix[i][j] - self.constraint_matrix[leaving_var][j] * self.constraint_matrix[i][entering_var] for j in range(len(self.constraint_matrix[0]))]
 
-            # remove later
+            # print the tableau at this stage
             print('Tableau after iteration:')
             self.print_tableau()
             print('Basic variables:', self.basic_vars)
@@ -271,13 +284,22 @@ class Tableau:
             
             # find the entering variable for the next iteration
             l = self.constraint_matrix[-1][:-1]
-            entering_var = self.constraint_matrix[-1].index(max(l) if op == 1 else min(l))
-        
-        # remove later
-        print('Optimization successful, obtained the tableau:')
-        self.print_tableau()
-        print('Basic variables:', self.basic_vars)
-        print()
+            entering_var = -1
+            for i in range(len(l)):
+                if (op == 1 and l[i] > 0):
+                    entering_var = i
+                    break
+                if (op == -1 and l[i] < 0):
+                    entering_var = i
+                    break
+            if (entering_var == -1):
+                break
+
+        if (not f_test):
+            print('Optimization successful, obtained the tableau:')
+            self.print_tableau()
+            print('Basic variables:', self.basic_vars)
+            print()
         return self.OPTIMIZE_SUCCESS
 
     def print_tableau(self):
