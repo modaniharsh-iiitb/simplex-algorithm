@@ -36,4 +36,5 @@ def interpret(filename):
 
 
         # the assumed constraints are that all variables are non-negative
+        print(act_constraints)
         return obj, num_vars, unit_cost, act_constraints
