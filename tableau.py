@@ -161,10 +161,17 @@ class Tableau:
             self.constraint_matrix[-1] = [self.constraint_matrix[-1][j] + self.constraint_matrix[i][j] for j in range(len(self.constraint_matrix[i]))]
             self.basic_vars[i] = art_var_counter
             art_var_counter += 1
-        for i in range(len(self.basic_vars) - 1):
-            if self.basic_vars[i] == 0:
+        for i in range(len(self.basic_vars)):
+            if (self.basic_vars[i] == 0):
                 self.basic_vars[i] = slack_var_counter
-            slack_var_counter += 1
+            if (self.constraints[i][1] != '='):
+                slack_var_counter += 1
+
+        # rermove later
+        print('Tableau after setting basic variables for artificial variables:')
+        self.print_tableau()
+        print('Basic variables:', self.basic_vars)
+        print()
         
         # initially, run the optimization over the artificial variables
         r = self.optimize(op = 1)
