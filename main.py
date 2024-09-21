@@ -45,7 +45,8 @@ if __name__ == '__main__':
     for i in range(len(constraints)):
         if(constraints[i][1] == '='):
             ind.append(i)
-            m.append(constraints[i][2])
+            m.append(constraints[i][2]+[constraints[i][0]])
+
     m = rref_no_swap(m)
     rem_constraints = []
     for i in range(len(m)):
