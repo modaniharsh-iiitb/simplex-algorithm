@@ -1,6 +1,4 @@
 from fractions import Fraction
-from sympy import *
-import row_reducer
 
 class Tableau:
 

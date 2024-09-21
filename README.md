@@ -1,3 +1,7 @@
+## Submission
+The .zip file submitted in the lms assignment with the github repository please refer to the github repo for the correct code.
+
+
 # simplex-algorithm
 A program written in Python that implements the simplex algorithm of solving linear programming problems.
 
